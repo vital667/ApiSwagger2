@@ -3,6 +3,8 @@ package ksiazki.controller;
 import io.swagger.annotations.ApiOperation;
 import ksiazki.model.Book;
 import ksiazki.repository.BookRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -25,8 +27,11 @@ public class BookController {
 
 
     @GetMapping("/{id}")
-    public Optional<Book> findById(@PathVariable int id) {
-        return bookRepository.findById(id);
+    public ResponseEntity<Book> findById(@PathVariable int id) {
+        Optional<Book> bookOptional = bookRepository.findById(id);
+        if (bookOptional.isPresent())
+            return new ResponseEntity<>(bookOptional.get(), HttpStatus.OK);
+        else return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
 
@@ -38,8 +43,10 @@ public class BookController {
 
 
     @GetMapping("/exists/{id}")
-    public String ifExists(@PathVariable int id) {
-        return bookRepository.existsById(id) ? "User №" + id + " exists" : "User №" + id + " doesn't exist";
+    public ResponseEntity<Book> ifExists(@PathVariable int id) {
+        if (bookRepository.existsById(id))
+            return new ResponseEntity<>(bookRepository.findById(id).get(), HttpStatus.OK);
+        else return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
 
@@ -50,49 +57,38 @@ public class BookController {
     }
 
 
-    @ApiOperation(value = "POST with Parameters")
-    @PostMapping("/save")
-    public Book save(@RequestParam String title,
-                     @RequestParam String author) {
-        Book book = new Book();
-        book.setTitle(title);
-        book.setAuthor(author);
-        return bookRepository.save(book);
-    }
-
-
     @DeleteMapping("/{id}")
-    public String save(@PathVariable int id) {
-        if (bookRepository.existsById(id)) {
-            bookRepository.deleteById(id);
-            return "User №" + id + " deleted";
-        } else
-            return "User №" + id + " doesn't exists";
+    public ResponseEntity<Book> deleteBook(@PathVariable int id) {
+        Optional<Book> book = bookRepository.findById(id);
+        if (book.isPresent()) {
+            bookRepository.deleteById(book.get().getId());
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
 
     @ApiOperation(value = "UPDATE with JSON and ID (parameter)")
-    @PutMapping("/{id}")
-    public String updateUser(
-            @RequestBody Book book,
-            @PathVariable int id
-    ) {
-        if (bookRepository.existsById(id)) {
-            Book newBook = new Book();
-            newBook.setId(id);
-            newBook.setAuthor(book.getAuthor());
-            newBook.setTitle(book.getTitle());
-            bookRepository.save(newBook);
-            System.out.println(newBook);
-            System.out.println("new"+bookRepository.findById(id));
-            return "User №" + id + " updated";
+    @PutMapping
+    public ResponseEntity<Book> updateUser(
+            @RequestBody Book book) {
+        if (!bookRepository.findById(book.getId()).isPresent()) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        Optional<Book> bookOptional = bookRepository.findById(book.getId());
+        if (bookOptional.isPresent()) {
+            Book newBook = bookOptional.get();
+            newBook.setId(book.getId());
+            if (book.getAuthor() != null)
+                newBook.setAuthor(book.getAuthor());
+            if (book.getTitle() != null)
+                newBook.setTitle(book.getTitle());
+            return new ResponseEntity<>(bookRepository.save(newBook), HttpStatus.OK);
         } else
-            return "User №" + id + " doesn't exist";
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
 
     @ApiOperation(value = "just CHECK connection and if working properly")
-    @GetMapping("check") String check() {
+    @GetMapping("check")
+    String check() {
         return "Check 1..2..3";
     }
 }

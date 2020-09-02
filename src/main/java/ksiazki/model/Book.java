@@ -20,7 +20,7 @@ import javax.persistence.Id;
 public class Book {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)   //generuje co jeden
     private Integer id;
 
     @JsonProperty("nazwa")
