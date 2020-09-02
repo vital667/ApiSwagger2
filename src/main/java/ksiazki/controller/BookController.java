@@ -9,7 +9,7 @@ import java.util.Optional;
 
 @CrossOrigin   //api jest dostepne dla innych!!! white origin - z jakich serwerow moze korzystac api
 @RestController
-@RequestMapping("/api/")
+@RequestMapping("/api/books")
 public class BookController {
 
     private BookRepository bookRepository;
@@ -18,40 +18,40 @@ public class BookController {
         this.bookRepository = bookRepository;
     }
 
-    @GetMapping("books")
+    @GetMapping
     public Iterable<Book> findAll() {
         return bookRepository.findAll();
     }
 
 
-    @GetMapping("books/{id}")
+    @GetMapping("/{id}")
     public Optional<Book> findById(@PathVariable int id) {
         return bookRepository.findById(id);
     }
 
 
     @ApiOperation(value = "COUNT number of users")
-    @GetMapping("books/count")
+    @GetMapping("/count")
     public long count() {
         return bookRepository.count();
     }
 
 
-    @GetMapping("books/exists/{id}")
+    @GetMapping("/exists/{id}")
     public String ifExists(@PathVariable int id) {
         return bookRepository.existsById(id) ? "User №" + id + " exists" : "User №" + id + " doesn't exist";
     }
 
 
     @ApiOperation(value = "POST with JSON")
-    @PostMapping("books")
+    @PostMapping
     public Book save(@RequestBody Book book) {
         return bookRepository.save(book);
     }
 
 
     @ApiOperation(value = "POST with Parameters")
-    @PostMapping("books/save")
+    @PostMapping("/save")
     public Book save(@RequestParam String title,
                      @RequestParam String author) {
         Book book = new Book();
@@ -61,18 +61,18 @@ public class BookController {
     }
 
 
-    @DeleteMapping("books/{id}")
+    @DeleteMapping("/{id}")
     public String save(@PathVariable int id) {
         if (bookRepository.existsById(id)) {
             bookRepository.deleteById(id);
-            return "deleted";
+            return "User №" + id + " deleted";
         } else
-            return "doesn't exists";
+            return "User №" + id + " doesn't exists";
     }
 
 
     @ApiOperation(value = "UPDATE with JSON and ID (parameter)")
-    @PutMapping("books/{id}")
+    @PutMapping("/{id}")
     public String updateUser(
             @RequestBody Book book,
             @PathVariable int id
@@ -87,7 +87,7 @@ public class BookController {
             System.out.println("new"+bookRepository.findById(id));
             return "User №" + id + " updated";
         } else
-            return "doesn't exist";
+            return "User №" + id + " doesn't exist";
     }
 
 
