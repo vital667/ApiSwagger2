@@ -7,9 +7,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
+import java.util.List;
 
-@CrossOrigin   //api jest dostepne dla innych!!! white origin - z jakich serwerow moze korzystac api
+@CrossOrigin
 @RestController
 @RequestMapping("/api/books")
 public class BookController {
@@ -28,9 +28,8 @@ public class BookController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Book> findById(@PathVariable int id) {
-        Optional<Book> bookOptional = bookRepository.findById(id);
-        if (bookOptional.isPresent())
-            return new ResponseEntity<>(bookOptional.get(), HttpStatus.OK);
+        if (bookRepository.existsById(id))
+            return new ResponseEntity<>(bookRepository.findById(id).get(), HttpStatus.OK);
         else return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
@@ -52,29 +51,29 @@ public class BookController {
 
     @ApiOperation(value = "POST with JSON")
     @PostMapping
-    public Book save(@RequestBody Book book) {
-        return bookRepository.save(book);
+    public ResponseEntity<Book> save(@RequestBody Book book) {
+        boolean exists = ((List<Book>) bookRepository.findAll()).stream()
+                .map(b->b.getTitle()).anyMatch(b->b.equals(book.getTitle()));
+        if (!exists) return new ResponseEntity<>(
+                bookRepository.save(book),
+                HttpStatus.OK);
+        else return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
-
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Book> deleteBook(@PathVariable int id) {
-        Optional<Book> book = bookRepository.findById(id);
-        if (book.isPresent()) {
-            bookRepository.deleteById(book.get().getId());
+        if (bookRepository.existsById(id)) {
+            bookRepository.deleteById(id);
             return new ResponseEntity<>(HttpStatus.OK);
         } else return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
 
-    @ApiOperation(value = "UPDATE with JSON and ID (parameter)")
+    @ApiOperation(value = "UPDATE with JSON")
     @PutMapping
-    public ResponseEntity<Book> updateUser(
-            @RequestBody Book book) {
-        if (!bookRepository.findById(book.getId()).isPresent()) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        Optional<Book> bookOptional = bookRepository.findById(book.getId());
-        if (bookOptional.isPresent()) {
-            Book newBook = bookOptional.get();
+    public ResponseEntity<Book> updateBook(@RequestBody Book book) {
+        if (bookRepository.existsById(book.getId())) {
+            Book newBook = bookRepository.findById(book.getId()).get();
             newBook.setId(book.getId());
             if (book.getAuthor() != null)
                 newBook.setAuthor(book.getAuthor());
