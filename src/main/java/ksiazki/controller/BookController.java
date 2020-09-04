@@ -117,8 +117,12 @@ public class BookController {
 
     @ApiOperation(value = "UPDATE with JSON")
     @PutMapping
-    public ResponseEntity<Book> updateBook(@RequestBody Book book) {
-        if (book.getId() != null && bookRepository.existsById(book.getId())) {
+    public ResponseEntity<Object> updateBook(@RequestBody Book book) {
+
+        if (book.getId() == null || book.getId() == null || !bookRepository.existsById(book.getId()))
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        if (book.getCategoryName() == null) {
             Book newBook = bookRepository.findById(book.getId()).get();
             newBook.setId(book.getId());
             if (book.getAuthor() != null)
@@ -126,10 +130,44 @@ public class BookController {
             if (book.getTitle() != null)
                 newBook.setTitle(book.getTitle());
             if (book.getCategoryId() != null)
-                newBook.setCategoryId(book.getCategoryId());
+                if (categoryRepository.existsById(book.getCategoryId()))
+                    newBook.setCategoryId(book.getCategoryId());
             return new ResponseEntity<>(bookRepository.save(newBook), HttpStatus.OK);
-        } else
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        boolean exists = ((List<Category>) categoryRepository.findAll()).stream()
+                .map(c -> c.getCategoryName())
+                .anyMatch(c -> c.equals(book.getCategoryName()));
+        if (exists) {
+            Book newBook = bookRepository.findById(book.getId()).get();
+            newBook.setId(book.getId());
+            if (book.getAuthor() != null)
+                newBook.setAuthor(book.getAuthor());
+            if (book.getTitle() != null)
+                newBook.setTitle(book.getTitle());
+
+            List<Category> list = (List<Category>) categoryRepository.findAll();
+            for (Category i : list)
+                if (i.getCategoryName().equals(book.getCategoryName())) newBook.setCategoryId(i.getCategoryId());
+
+            return new ResponseEntity<>(bookRepository.save(newBook), HttpStatus.OK);
+        } else {
+            List<Object> list = new ArrayList<>();
+            Category category = new Category();
+            category.setCategoryName(book.getCategoryName());
+
+            Book newBook = bookRepository.findById(book.getId()).get();
+            newBook.setId(book.getId());
+            if (book.getAuthor() != null)
+                newBook.setAuthor(book.getAuthor());
+            if (book.getTitle() != null)
+                newBook.setTitle(book.getTitle());
+            newBook.setCategoryId(categoryRepository.save(category).getCategoryId());
+            list.add(bookRepository.save(newBook));
+            list.add(categoryRepository.save(category));
+
+            return new ResponseEntity<>(list, HttpStatus.OK);
+        }
     }
 
 

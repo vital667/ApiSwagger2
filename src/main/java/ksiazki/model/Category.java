@@ -1,8 +1,6 @@
 package ksiazki.model;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,31 +23,35 @@ public class Category {
 
     private String categoryName;
 
-
     @OneToMany(mappedBy = "category")
     private List<Book> books = new ArrayList<>();
 
 
-//    @Transient
-//    @JsonIgnore
-//    private String secret;
-//
-//
-//    @JsonIgnore
-//    public String getSecret() {
-//        return secret;
-//    }
-//
-//    @JsonProperty
-//    public void setSecret(String secret) {
-//        this.secret = secret;
-//    }
+    @Transient
+    @JsonIgnore
+    private String title;
 
-    @Override
-    public String toString() {
-        return "Category{" +
-                "categoryId=" + categoryId +
-                ", categoryName='" + categoryName + '\'' +
-                '}';
+    @JsonIgnore
+    public String getTitle() {
+        return title;
+    }
+
+    @JsonProperty
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    @Transient
+    @JsonIgnore
+    private String author;
+
+    @JsonIgnore
+    public String getAuthor() {
+        return author;
+    }
+
+    @JsonProperty
+    public void setAuthor(String author) {
+        this.author = author;
     }
 }

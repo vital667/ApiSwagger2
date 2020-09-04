@@ -2,7 +2,6 @@ package ksiazki.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -47,17 +46,5 @@ public class Book {
     @JsonProperty
     public void setCategoryName(String categoryName) {
         this.categoryName = categoryName;
-    }
-
-
-
-
-
-    @Override
-    public String toString() {
-        return "id " + id +
-                " title " + title +
-                " author " + author +
-                " categoryId " + categoryId;
     }
 }
