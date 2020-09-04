@@ -33,4 +33,31 @@ public class Book {
 
     @JsonIgnore
     private String isbn;
+
+
+    @Transient
+    @JsonIgnore
+    private String categoryName;
+
+    @JsonIgnore
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+    @JsonProperty
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
+    }
+
+
+
+
+
+    @Override
+    public String toString() {
+        return "id " + id +
+                " title " + title +
+                " author " + author +
+                " categoryId " + categoryId;
+    }
 }

@@ -51,18 +51,25 @@ public class CategoryController {
     }
 
 
-    @ApiOperation(value = "POST with JSON")
-    @PostMapping
-    public ResponseEntity<Category> save(@RequestBody Category category) {
-        boolean exists = ((List<Category>) categoryRepository.findAll()).stream()
-                .map(c -> c.getCategoryName())
-                .anyMatch(c -> c.equals(category.getCategoryName()));
-        if (!exists) return new ResponseEntity<>(
-                categoryRepository.save(category),
-                HttpStatus.OK);
-        else return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-    }
+//    @ApiOperation(value = "POST with JSON")
+//    @PostMapping
+//    public ResponseEntity<Category> save(@RequestBody Category category) {
+//        boolean exists = ((List<Category>) categoryRepository.findAll()).stream()
+//                .map(c -> c.getCategoryName())
+//                .anyMatch(c -> c.equals(category.getCategoryName()));
+//        if (!exists && category.getCategoryName()!=null) return new ResponseEntity<>(
+//                categoryRepository.save(category),
+//                HttpStatus.OK);
+//        else return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+//    }
 
+
+//    @PostMapping
+//    public Category save(@RequestBody Category category) {
+//        System.out.println(category.getSecret());
+//        System.out.println(category);
+//        return categoryRepository.save(category);
+//    }
 
 
     @DeleteMapping("/{id}")
@@ -77,7 +84,7 @@ public class CategoryController {
     @ApiOperation(value = "UPDATE with JSON")
     @PutMapping
     public ResponseEntity<Category> updateCategory(@RequestBody Category category) {
-        if (categoryRepository.existsById(category.getCategoryId())) {
+        if (category.getCategoryId() != null && categoryRepository.existsById(category.getCategoryId())) {
             Category newCategory = categoryRepository.findById(category.getCategoryId()).get();
             newCategory.setCategoryId(category.getCategoryId());
             if (category.getCategoryName() != null)
